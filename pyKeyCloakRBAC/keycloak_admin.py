@@ -796,9 +796,7 @@ class KeycloakAdmin:
         """
 
         params_path = {"realm-name": self.realm_name}
-        print(params_path)
         data_raw = self.raw_get(URL_ADMIN_CLIENTS.format(**params_path))
-        print(data_raw)
         return raise_error_from_response(data_raw, KeycloakGetError)
 
     def get_client(self, client_id):
@@ -860,7 +858,7 @@ class KeycloakAdmin:
         params_path = {"realm-name": self.realm_name, "id": client_id}
         data_raw = self.raw_get(
             URL_ADMIN_CLIENT_AUTHZ_RESOURCES.format(**params_path))
-        return data_raw
+        return raise_error_from_response(data_raw, KeycloakGetError)
 
     def get_client_service_account_user(self, client_id):
         """
