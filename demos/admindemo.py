@@ -42,13 +42,13 @@ if __name__ == '__main__':
     # 操作用户和角色
     print("分配给用户角色：")
     print("\t", pa.assign_role_to_user(username, rolename))
-    print("删除用户角色:")
-    print("\t", pa.delete_realm_user_role(username, rolename))
+    # print("删除用户角色:")
+    # print("\t", pa.delete_realm_user_role(username, rolename))
     print("获取角色 {} 下的所有用户：".format(rolename))
     print("\t", pa.get_realm_role_members(rolename))
     # 资源操作,同时初始化对应permission
     resource_client = "test_api"
-    resource = "/api/v1/forall"
+    resource = "/api/v1/face"
     try:
         print("创建资源: ")
         print("\t", pa.create_resource(resource_client, resource))
@@ -58,5 +58,7 @@ if __name__ == '__main__':
     print("获取resource_client {}的所有api：".format(resource_client))
     print("\t", pa.get_resources(resource_client))
     # 权限操作,权限基于资源，可以绑定角色策略。
+    print('角色绑定权限: ')
+    print("\t", pa.assign_permission_to_role(resource_client, resource, rolename))
 
 
