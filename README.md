@@ -3,9 +3,9 @@ RBAC python implementation based on Keycloak
 
 # 概念
 
-## 角色
+## 角色和策略
 
-* 本项目中的角色，在keycloak中表现为realm role。
+* 本项目中的角色，在keycloak中表现为realm role,同时，对应的策略和角色名相同。
 
 ### 接口
 
@@ -13,7 +13,9 @@ RBAC python implementation based on Keycloak
 * [x] 删除角色
 * [x] 更新角色名称
 * [x] 获取所有角色
-* [ ] 获取角色权限
+* [x] 创建策略
+* [x] 删除策略
+* [x] 获取策略
 
 ## 资源和权限
 
@@ -37,9 +39,9 @@ RBAC python implementation based on Keycloak
 * [x] 删除用户
 * [x] 修改用户密码
 * [x] 更新用户信息
-* [x] 获取所有用户
+* [x] 获取所有用户信息
 * [x] 获取用户信息
-## 角色权限操作
+## 角色和权限
 
 * 本项目中的角色及权限绑定，使用keycloak中client的Policy进行指定。
 * Policy的name和realm role的名字相同。
@@ -47,12 +49,15 @@ RBAC python implementation based on Keycloak
 ### 接口
 
 * [x] 角色和权限关联
-* [ ] 取消角色和权限关联
+* [x] 取消角色和权限关联
 * [ ] 获取角色的权限
+* [x] 获取权限关联的角色
 
-## 用户和角色操作
+## 用户和角色
+
+### 接口
 
 * [x] 用户和角色关联
-* [x] 取消关联
-* [ ] 获取角色下的用户
-* [ ] 获取用户的角色
+* [x] 取消用户和角色的关联
+* [x] 获取角色下的用户
+* [x] 获取用户的角色
