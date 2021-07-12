@@ -4,13 +4,14 @@ import sys
 sys.path.append(pwd.replace('/demos', ''))
 from pyKeyCloakRBAC.pyrbac import PyRBACAdmin
 
-# 配置是否需要测试
-testdict = {'roletest': False, 'usertest': False, 'resourcetest': False,
-            'permissiontest': False, 'policytest': False, 'user_role': False,
+# 配置是否需要演示
+testdict = {'roletest': True, 'usertest': True, 'resourcetest': True,
+            'permissiontest': True, 'policytest': True, 'user_role': True,
             'role_permission': True}
 
 if __name__ == '__main__':
-    server_url = "http://xxxx:xxxx/auth/"
+    # keycloak实际地址
+    server_url = "http://host:port/auth/"
     # 管理员操作
     username = "realmadmin"
     password = "1111"
@@ -75,8 +76,8 @@ if __name__ == '__main__':
         new_info = {'emailVerified': True, 'attributes': {'count': ['999']}}
         print('\t', pa.update_user(uid, new_info))
         print('\t', pa.get_user(uid))
-        print('删除用户 {}'.format(username))
-        print('\t', pa.delete_user(uid))
+        # print('删除用户 {}'.format(username))
+        # print('\t', pa.delete_user(uid))
 
     # 操作用户和角色
     if testdict['user_role']:
@@ -109,5 +110,7 @@ if __name__ == '__main__':
         print("\t", pa.op_permission_with_role(resource_client, resource, rolename))
         print('获取权限{}关联的角色：'.format(resource))
         print('\t', pa.get_permission_roles(resource_client, resource))
-        print('角色{}取消权限{}: '.format(rolename, resource))
-        print("\t", pa.op_permission_with_role(resource_client, resource, rolename, op="delete"))
+        # print('角色{}取消权限{}: '.format(rolename, resource))
+        # print("\t", pa.op_permission_with_role(resource_client, resource, rolename, op="delete"))
+        print('获取角色{}的所有权限: '.format(rolename))
+        print("\t", pa.get_role_permissions(resource_client, rolename))
