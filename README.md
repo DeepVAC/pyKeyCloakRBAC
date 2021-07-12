@@ -50,7 +50,7 @@ RBAC python implementation based on Keycloak
 
 * [x] 角色和权限关联
 * [x] 取消角色和权限关联
-* [ ] 获取角色的权限
+* [x] 获取角色的权限
 * [x] 获取权限关联的角色
 
 ## 用户和角色

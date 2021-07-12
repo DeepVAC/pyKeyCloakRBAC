@@ -64,17 +64,17 @@ class PyRBACAdmin(KeycloakAdmin):
                        "cid": self.get_client_id(client_id)}
         data_raw = self.raw_get(url.format(**params_path))
         return raise_error_from_response(data_raw, KeycloakGetError)
-    
+
     def create_policy(self, client_id, policyname, rolename):
         try:
             rid = self.get_role_id(rolename)
             payload = {"type": "role", "logic": "POSITIVE",
-                    "decisionStrategy": "UNANIMOUS", "name": policyname, "roles": [{"id": rid}]}
+                       "decisionStrategy": "AFFIRMATIVE", "name": policyname, "roles": [{"id": rid}]}
             cid = self.get_client_id(client_id)
             url = "admin/realms/{realm-name}/clients/{cid}/authz/resource-server/policy/role"
             params_path = {"realm-name": self.realm_name, "cid": cid}
             data_raw = self.raw_post(url.format(**params_path),
-                                    data=json.dumps(payload))
+                                     data=json.dumps(payload))
             return raise_error_from_response(data_raw, KeycloakGetError)
         except Exception as e:
             return self.errormsg(str(e))
@@ -82,7 +82,8 @@ class PyRBACAdmin(KeycloakAdmin):
     def delete_policy(self, client_id, policyname):
         try:
             url = 'admin/realms/{realm-name}/clients/{cid}/authz/resource-server/policy/{pid}'
-            params_path = {"realm-name": self.realm_name, "cid": self.get_client_id(client_id), 'pid': self.get_policy_id(client_id, policyname)}
+            params_path = {"realm-name": self.realm_name, "cid": self.get_client_id(
+                client_id), 'pid': self.get_policy_id(client_id, policyname)}
             rawdata = self.raw_delete(url.format(**params_path))
             return raise_error_from_response(rawdata, KeycloakGetError)
         except Exception as e:
@@ -105,7 +106,7 @@ class PyRBACAdmin(KeycloakAdmin):
         try:
             cid = self.get_client_id(client_id)
             url = "admin/realms/{realm-name}/clients/{cid}/authz/resource-server/permission/resource"
-            payload = {"type": "resource", "logic": "POSITIVE", "decisionStrategy": "UNANIMOUS",
+            payload = {"type": "resource", "logic": "POSITIVE", "decisionStrategy": "AFFIRMATIVE",
                        "name": resource, "resources": [self.get_resource_id(client_id, resource)], "policies": []}
             params_path = {"realm-name": self.realm_name, "cid": cid}
             data_raw = self.raw_post(url.format(
@@ -120,7 +121,8 @@ class PyRBACAdmin(KeycloakAdmin):
 
     def get_resource_id(self, client_id, resourcename):
         url = "admin/realms/{realm-name}/clients/{cid}/authz/resource-server/resource/search?name={rn}"
-        params_path = {'realm-name':self.realm_name, 'cid': self.get_client_id(client_id), 'rn': resourcename}
+        params_path = {'realm-name': self.realm_name,
+                       'cid': self.get_client_id(client_id), 'rn': resourcename}
         raw_data = self.raw_get(url.format(**params_path))
         if raw_data.status_code == 200:
             return raw_data.json()['_id']
@@ -134,8 +136,16 @@ class PyRBACAdmin(KeycloakAdmin):
             params_path = {"realm-name": self.realm_name, "cid": cid}
         else:
             url = 'admin/realms/{realm-name}/clients/{cid}/authz/resource-server/policy/search?name={pname}'
-            params_path = {'realm-name': self.realm_name, 'cid': cid, 'pname':permission}
+            params_path = {'realm-name': self.realm_name,
+                           'cid': cid, 'pname': permission}
         raw_data = self.raw_get(url.format(**params_path))
+        return raise_error_from_response(raw_data, KeycloakGetError)
+
+    def delete_permission(self, client_id, permission):
+        url = 'admin/realms/{realm-admin}/clients/{cid}/authz/resource-server/permission/{pid}'
+        params_path = {'realm-name': self.realm_name, 'cid': self.get_client_id(
+            client_id), 'pid': self.get_permissions(client_id, permission)['id']}
+        raw_data = self.raw_delete(url.format(**params_path))
         return raise_error_from_response(raw_data, KeycloakGetError)
 
     # 角色和权限操作
@@ -145,9 +155,10 @@ class PyRBACAdmin(KeycloakAdmin):
         src_roles = self.get_permission_roles(client_id, permission)
         src_role_ids = [rid['id'] for rid in src_roles]
         npoid = self.get_policy_id(client_id, role)
-        payload = {"id": perm['id'], "name": permission, "type": "resource", "logic": "POSITIVE", "decisionStrategy": "UNANIMOUS"}
+        payload = {"id": perm['id'], "name": permission, "type": "resource",
+                   "logic": "POSITIVE", "decisionStrategy": "AFFIRMATIVE"}
         params_path = {'realm-name': self.realm_name,
-                        'pid': perm['id'], 'cid': self.get_client_id(client_id)}
+                       'pid': perm['id'], 'cid': self.get_client_id(client_id)}
         if op == "assign":
             if npoid in src_role_ids:
                 return {}
@@ -160,23 +171,33 @@ class PyRBACAdmin(KeycloakAdmin):
                 src_role_ids.remove(npoid)
         payload["resources"] = [self.get_resource_id(client_id, permission)]
         payload["policies"] = src_role_ids
-        data_raw = self.raw_put(url.format(**params_path), data=json.dumps(payload))
+        data_raw = self.raw_put(url.format(
+            **params_path), data=json.dumps(payload))
         return raise_error_from_response(data_raw, KeycloakGetError)
 
-#     def get_role_permissions(self, rolename):
-#         rid = self.get_role_id(rolename)
-#         if not rid:
-#             return self.errormsg("role {} not found".format(rolename))
-#         url = "admin/realms/{realm-name}/groups/{rid}/role-mappings/clients/{cid}"
-#         self.get_admin_cid()
-#         params_path = {"realm-name": self.realm_name,
-#                        "rid": rid, "cid": self.cid}
-#         data_raw = self.raw_get(url.format(**params_path))
-#         return raise_error_from_response(data_raw, KeycloakGetError, expected_code=200)
+    def get_role_permissions(self, client_id, rolename):
+        client_settings = self.get_client_authz_settings(
+            self.get_client_id(client_id)).json()
+        policies = client_settings.get("policies")
+        permissions = []
+        role = None
+        for rolep in policies:
+            if rolep['type'] == 'role' and not role:
+                if rolep['name'] == rolename:
+                    role = rolep
+            else:
+                if rolep['type'] == 'resource':
+                    rolepolicies = rolep['config'].get(
+                        'applyPolicies') if rolep['config'].get('applyPolicies') else []
+                    permissions.extend(
+                        [{'id': rolep['id'], 'name': rolep['name']}] if rolename in rolepolicies else [])
+        role['permissions'] = permissions
+        return role
 
     def get_permission_roles(self, client_id, permission):
         url = 'admin/realms/{realm-name}/clients/{cid}/authz/resource-server/policy/{pid}/associatedPolicies'
-        params_path = {'realm-name': self.realm_name, 'cid': self.get_client_id(client_id), 'pid': self.get_permissions(client_id, permission)['id']}
+        params_path = {'realm-name': self.realm_name, 'cid': self.get_client_id(
+            client_id), 'pid': self.get_permissions(client_id, permission)['id']}
         rawdata = self.raw_get(url.format(**params_path))
         return raise_error_from_response(rawdata, KeycloakGetError)
 
